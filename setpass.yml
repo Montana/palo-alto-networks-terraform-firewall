@@ -1,0 +1,21 @@
+---
+- name: Set admin password and commit to firewall
+  hosts: all
+  connection: local
+  gather_facts: false
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+  tasks:
+    - name: Set admin password
+      panos_admpwd:
+        ip_address: '{{ fw_address }}'
+        key_filename: '{{ fw_keyfile }}'
+        newpassword: '{{ fw_password }}'
+      register: result
+      until: not result|failed
+      retries: 20
+      delay: 10
+    - name: Run the commit job
+      panos_commit:
+        ip_address: '{{ fw_address }}'
+        password: '{{ fw_password }}'
